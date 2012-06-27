@@ -4,7 +4,7 @@ url = require 'url'
 
 _ = require 'underscore'
 
-digest = require './digest'
+Digest = require './digest'
 
 UnzippingResponseDecorator = require './unzipping-response-decorator'
 
@@ -71,9 +71,9 @@ module.exports = class
                 return cb new Error msg2 if not credentials?
                 @debug 'not authorized: authorizing'
 
-                challenge = digest.parseChallenge res.headers['www-authenticate']
+                challenge = Digest.parseChallenge res.headers['www-authenticate']
                 @debug 'challenge:', challenge
-                digest = digest.renderDigest challenge,
+                digest = Digest.renderDigest challenge,
                     credentials.username
                     credentials.password
                     options.path
