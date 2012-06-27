@@ -1,8 +1,8 @@
-# amazon associate
+# amazon-associate
 
 simple interface to amazon associate reports
 
-**NOTE** this is very much work in progress
+**this is very much work in progress**
 
 ### Install
 
