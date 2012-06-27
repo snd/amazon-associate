@@ -1,12 +1,9 @@
-Client = require './client'
-
 _ = require 'underscore'
 moment = require 'moment'
 
-ReportsParser = require './reports-parser'
-ItemsParser = require './items-parser'
-
-digest = require './digest'
+Client = require './lib/client'
+ItemParser = require './lib/item-parser'
+ReportParser = require './lib/report-parser'
 
 parseResponse = (res, parser, cb) ->
     parser.on 'error', (err) -> cb err
@@ -53,7 +50,7 @@ module.exports = class
             datestring = moment(date).format 'YYYY-MM-DD'
             if res.headers['content-length'] is '0'
                 return cb new Error "no #{type} for date #{datestring}"
-            parser = new ItemsParser
+            parser = new ItemParser
             parseResponse res, parser, cb
 
     getOrders: (date, cb) -> @_getItems date, 'orders', cb
@@ -67,5 +64,5 @@ module.exports = class
             unzip: false
         }, (err, res) ->
             return cb err if err?
-            parser = new ReportsParser
+            parser = new ReportParser
             parseResponse res, parser, cb

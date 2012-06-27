@@ -1,8 +1,8 @@
-ItemsParser = require '../items-parser'
+ItemParser = require '../lib/item-parser'
 
 module.exports =
     'empty items are parsed correctly': (test) ->
-        parser = new ItemsParser
+        parser = new ItemParser
 
         parser.on 'error', (err) -> test.fail()
         parser.on 'end', (earnings) ->
@@ -15,7 +15,7 @@ module.exports =
         parser.close()
 
     'one item is parsed correctly': (test) ->
-        parser = new ItemsParser
+        parser = new ItemParser
 
         parser.on 'error', (err) -> test.fail()
         parser.on 'end', (earnings) ->
@@ -45,7 +45,7 @@ module.exports =
         parser.close()
 
     'three items are parsed correctly': (test) ->
-        parser = new ItemsParser
+        parser = new ItemParser
 
         parser.on 'error', (err) ->
             console.log err

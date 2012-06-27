@@ -6,7 +6,7 @@ _ = require 'underscore'
 
 digest = require './digest'
 
-UnzipRequestDecorator = require './unzip-request-decorator'
+UnzippingResponseDecorator = require './unzipping-response-decorator'
 
 # simplified request handling
 # decorates http api for digest auth, following redirects and unzipping
@@ -44,7 +44,7 @@ module.exports = class
             handlers = {}
 
             handlers[200] = =>
-                return cb null, new UnzipRequestDecorator res if options.unzip
+                return cb null, new UnzippingResponseDecorator res if options.unzip
                 res.setEncoding 'utf-8'
                 cb null, res
 
