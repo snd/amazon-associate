@@ -22,7 +22,7 @@ module.exports = digest =
     renderResponse: (challenge, username, password, path) ->
         h1 = md5 [username, challenge.realm, password].join ':'
         h2 = md5 ['GET', path].join ':'
-        md5 [h1, challenge.nonce, '1', '', 'auth', h2].join ':'
+        md5 [h1, challenge.nonce, '000001', '', 'auth', h2].join ':'
 
     renderDigest: (challenge, username, password, path) ->
         params =
@@ -32,8 +32,9 @@ module.exports = digest =
             uri: path
             qop: challenge.qop
             response: digest.renderResponse challenge, username, password, path
-            nc: '1'
+            nc: '000001'
             cnonce: ''
+            opaque: challenge.opaque
 
         parts = _.map _.keys(params), (key) -> "#{key}=\"#{params[key]}\""
 
