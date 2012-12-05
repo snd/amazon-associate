@@ -42,7 +42,6 @@ amazon.getEarnings (new Date 2012, 5, 22), (err, earnings) ->
     - `subtag` that is the subtag used in the affiliate link
     - `tag` that is the associate id
     - `title` that is the title of the product
-
 - `getOrders(date, cb)` calls `cb` of the orders of the given date.
     each order has the following properties:
     - `asin` that is the [amazon standard identification number](http://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number) of the product
