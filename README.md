@@ -1,14 +1,14 @@
 # amazon-associate
 
-simple interface to amazon associate reports
+amazon-associate is a simple interface to amazon associate reports
 
-**this is very much work in progress**
+**this is very early work in progress**
 
-### Install
+### install
 
     npm install amazon-associate
 
-### Use
+### use
 
 ```coffeescript
 
@@ -24,7 +24,7 @@ amazon.getEarnings (new Date 2012, 5, 22), (err, earnings) ->
     console.log earnings
 ```
 
-### API
+### api
 
 - `getEarnings(cb)` calls `cb` with an array of earnings objects
     - String `asin` that is the [amazon standard identification number](http://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number) of the product
@@ -42,4 +42,4 @@ amazon.getEarnings (new Date 2012, 5, 22), (err, earnings) ->
     - String `tag` that is the associate id
     - String `title` that is the product's title
 
-### License: MIT
+### license: MIT
