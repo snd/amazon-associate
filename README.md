@@ -1,5 +1,7 @@
 # amazon-associate
 
+[![Build Status](https://travis-ci.org/snd/amazon-associate.png)](https://travis-ci.org/snd/amazon-associate)
+
 amazon-associate is a simple interface to amazon associate reports for nodejs
 
 ### install
