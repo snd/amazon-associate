@@ -1,13 +1,30 @@
 {
-    "author": "Maximilian Krüger <kruemaxi@googlemail.com> (http://github.com/snd)",
     "name": "amazon-associate",
-    "description": "simple interface to amazon associate reports",
+    "description": "amazon-associate is a simple interface to amazon associate reports for nodejs",
     "version": "0.2.0",
+    "homepage": "http://github.com/snd/amazon-associate",
+    "author": {
+        "name": "Maximilian Krüger",
+        "email": "kruemaxi@gmail.com",
+        "url": "http://github.com/snd"
+    },
+    "bugs": {
+        "url": "http://github.com/snd/amazon-associate/issues",
+        "email": "kruemaxi@gmail.com"
+    },
     "repository": {
         "type": "git",
-        "url": "git://github.com/snd/node-amazon-associate.git"
+        "url": "git://github.com/snd/amazon-associate.git"
+    },
+    "licenses": {
+        "type": "MIT",
+        "url": "git://github.com/snd/amazon-associate/LICENSE"
+    },
+    "engines": {
+        "node": ">=0.8.5"
     },
     "dependencies": {
+        "coffee-script": "1.4.0",
         "underscore": "1.3.3",
         "moment": "1.6.2",
         "sax": "0.4.0"
