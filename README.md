@@ -1,8 +1,6 @@
 # amazon-associate
 
-amazon-associate is a simple interface to amazon associate reports
-
-**this is very early work in progress**
+amazon-associate is a simple interface to amazon associate reports for nodejs
 
 ### install
 
