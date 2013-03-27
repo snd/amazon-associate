@@ -17,6 +17,7 @@ Amazon = require 'amazon-associate'
 amazon = new Amazon
     associateId: 'your amazon associate id'
     password: 'your password'
+    host: 'assoc-datafeeds-na.amazon.com' # (default 'assoc-datafeeds-eu.amazon.com')
     debug: true # print debug output to the console (optional)
 
 amazon.getEarnings (new Date 2012, 5, 22), (err, earnings) ->
