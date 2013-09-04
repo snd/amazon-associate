@@ -1,4 +1,4 @@
-ItemParser = require '../lib/item-parser'
+ItemParser = require '../src/item-parser'
 
 module.exports =
     'empty items are parsed correctly': (test) ->

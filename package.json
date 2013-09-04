@@ -1,7 +1,8 @@
 {
     "name": "amazon-associate",
     "description": "amazon-associate is a simple interface to amazon associate reports for nodejs",
-    "version": "0.2.0",
+    "version": "0.3.0",
+    "keywords": ["amazon", "associate", "report"],
     "homepage": "http://github.com/snd/amazon-associate",
     "author": {
         "name": "Maximilian Krüger",
@@ -24,12 +25,20 @@
         "node": ">=0.8.5"
     },
     "dependencies": {
-        "coffee-script": "1.4.0",
-        "underscore": "1.3.3",
-        "moment": "1.6.2",
-        "sax": "0.4.0"
+        "underscore": "1.5.1",
+        "moment": "2.1.0",
+        "sax": "0.5.5"
     },
     "devDependencies": {
-        "nodeunit": "0.7.4"
+        "coffee-script": "1.6.3",
+        "nodeunit": "0.8"
+    },
+    "main": "src/amazon",
+    "scripts": {
+        "prepublish": "coffee --bare --compile --output src src/*.coffee",
+        "postpublish": "rm src/*.js",
+        "pretest": "coffee --bare --compile --output src src/*.coffee && coffee --bare --compile --output test test/*.coffee",
+        "posttest": "rm src/*.js && rm test/*.js",
+        "test": "nodeunit test/*.js"
     }
 }

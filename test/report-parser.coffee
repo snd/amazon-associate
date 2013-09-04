@@ -1,4 +1,4 @@
-ReportParser = require '../lib/report-parser'
+ReportParser = require '../src/report-parser'
 
 module.exports =
     'empty reports are parsed correctly': (test) ->

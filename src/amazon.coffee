@@ -1,9 +1,9 @@
 _ = require 'underscore'
 moment = require 'moment'
 
-Client = require './lib/client'
-ItemParser = require './lib/item-parser'
-ReportParser = require './lib/report-parser'
+Client = require './client'
+ItemParser = require './item-parser'
+ReportParser = require './report-parser'
 
 parseResponse = (res, parser, cb) ->
     parser.on 'error', (err) -> cb err
