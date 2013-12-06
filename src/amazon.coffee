@@ -24,13 +24,14 @@ module.exports = class
         _.defaults @options,
             host: 'assoc-datafeeds-eu.amazon.com'
             reportPath: '/datafeed/listReports'
+            username: @options.associateId
             debug: false
         clientOptions =
             debug: @options.debug
             credentials: {}
         clientOptions.credentials[@options.host] =
             type: 'digest'
-            username: @options.associateId
+            username: @options.username
             password: @options.password
         @client = new Client clientOptions
 
