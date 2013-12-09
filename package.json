@@ -1,7 +1,7 @@
 {
     "name": "amazon-associate",
     "description": "amazon-associate is a simple interface to amazon associate reports for nodejs",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "keywords": ["amazon", "associate", "report"],
     "homepage": "http://github.com/snd/amazon-associate",
     "author": {
