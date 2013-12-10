@@ -4,83 +4,82 @@ url = require 'url'
 
 _ = require 'underscore'
 
-Digest = require './digest'
+digest = require './digest'
+newUnzippingResponseDecorator = require './unzipping-response-decorator'
 
-UnzippingResponseDecorator = require './unzipping-response-decorator'
+# adds digest auth, following redirects and response unzipping on top of http api
 
-# simplified request handling
-# decorates http api for digest auth, following redirects and unzipping
-# just adds functionality
+module.exports = ->
+    digests = {}
+    requestNumber = 0
 
-module.exports = class
-
-    constructor: (@options) ->
-        @digests = {}
-
-    debug: (args...) -> console.error 'DEBUG: request', args... if @options.debug
-
-    request: (options, cb) ->
+    httpRequest = (options, cb) ->
+        # defensive cloning
+        options = _.extend {}, options
 
         options.unzip ?= false
 
-        @debug 'options', options
+        currentRequestNumber = requestNumber++
 
-        currentDigest = @digests[options.host]
+        debug = (args...) ->
+            console.error 'REQUEST', requestNumber, args... if options.debug?
 
-        clonedOptions = _.extend {}, options
+        debug 'options', options
+
+        currentDigest = digests[options.host]
+
+        debug 'currentDigest', currentDigest
+
         if currentDigest?
-            clonedOptions.headers ?= {}
-            _.extend clonedOptions.headers,
-                Authorization: currentDigest
+            options.headers ?= {}
+            options.headers.Authorization = currentDigest
 
         httpOrHttps = if options.https then https else http
 
-        req = httpOrHttps.request clonedOptions, (res) =>
-            @debug 'response status code', res.statusCode
-            @debug 'response headers', res.headers
+        req = httpOrHttps.request options, (res) =>
+            debug 'response status code', res.statusCode
+            debug 'response headers', res.headers
 
-            res.on 'close', (err) => @debug 'response error', err
+            res.on 'close', (err) ->
+                debug 'response error', err
 
             handlers = {}
 
             handlers[200] = =>
-                return cb null, new UnzippingResponseDecorator res if options.unzip
+                return cb null, newUnzippingResponseDecorator res if options.unzip
                 res.setEncoding 'utf-8'
                 cb null, res
 
             handlers[301] = handlers[302] = =>
-                @debug 'moved', res.headers
                 location = res.headers.location
-                @debug 'moved to', location
+                debug 'moved to', location
 
                 parsedUrl = url.parse location
 
-                @debug 'redirect location', parsedUrl
+                debug 'redirect to', parsedUrl
 
-                @request _.extend({}, parsedUrl, {
+                httpRequest _.extend({}, options, parsedUrl, {
                     https: parsedUrl.protocol is 'https'
-                    state: options.state
-                    unzip: options.unzip
                 }), cb
 
             handlers[401] = =>
                 msg1 = 'wrong credentials'
                 return cb new Error msg1 if currentDigest?
                 msg2 = 'authentication required, but `digest` option is not set'
-                credentials = @options?.credentials?[options.host]
+                credentials = options?.credentials?[options.host]
                 return cb new Error msg2 if not credentials?
-                @debug 'not authorized: authorizing'
+                debug 'not authorized: authorizing...'
 
-                challenge = Digest.parseChallenge res.headers['www-authenticate']
-                @debug 'challenge:', challenge
-                digest = Digest.renderDigest challenge,
+                challenge = digest.parseChallenge res.headers['www-authenticate']
+                debug 'challenge:', challenge
+                d = digest.renderDigest challenge,
                     credentials.username
                     credentials.password
                     options.path
-                @digests[options.host] = digest
-                @debug 'digest:', digest
+                digests[options.host] = d
+                debug 'new digest:', d
                 # retry with the digest
-                @request _.extend({}, options), cb
+                httpRequest options, cb
 
             handler = handlers[res.statusCode]
             msg = "failed to get #{options.path}. server status #{res.statusCode}"
@@ -88,3 +87,5 @@ module.exports = class
             handler()
 
         req.end()
+
+    return httpRequest
