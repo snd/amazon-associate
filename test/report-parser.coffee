@@ -1,8 +1,8 @@
-ReportParser = require '../src/report-parser'
+newReportParser = require '../src/report-parser'
 
 module.exports =
     'empty reports are parsed correctly': (test) ->
-        parser = new ReportParser
+        parser = newReportParser()
 
         parser.on 'error', -> test.fail()
         parser.on 'end', (reports) ->
@@ -14,7 +14,7 @@ module.exports =
         parser.close()
 
     'a single report is parsed correctly': (test) ->
-        parser = new ReportParser
+        parser = newReportParser()
 
         parser.on 'error', -> test.fail()
         parser.on 'end', (reports) ->
@@ -35,7 +35,7 @@ module.exports =
         parser.close()
 
     'three reports are parsed correctly': (test) ->
-        parser = new ReportParser
+        parser = newReportParser()
 
         parser.on 'error', -> test.fail()
         parser.on 'end', (reports) ->

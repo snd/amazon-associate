@@ -1,44 +1,52 @@
-{EventEmitter} = require 'events'
+events = require 'events'
 
 sax = require 'sax'
 
-module.exports = class extends EventEmitter
-    constructor: ->
-        @reports = []
-        @report = {}
-        @mode = 'search-table-head-end'
+module.exports = ->
+    reportsSoFar = []
 
-        @parser = sax.parser false
-        @parser.onerror = (err) => @emit 'error', err
-        @parser.onend = => @emit 'end', @reports
+    currentIncompleteReport = {}
+    mode = 'searching-for-end-of-table-head'
 
-        @parser.onopentag = ({name}) =>
-            @mode = 'read-filename' if @mode is 'next-row' and name is 'TR'
+    reportParser = new events.EventEmitter
 
-        @parser.ontext = (text) =>
-            switch @mode
-                when 'read-filename'
-                    @report.filename = text
-                    @mode = 'read-last-modified'
-                when 'read-last-modified'
-                    @report.lastModified = text
-                    @mode = 'read-md5'
-                when 'read-md5'
-                    @report.md5 = text
-                    @mode = 'read-size'
-                when 'read-size'
-                    @report.size = text
-                    @mode = 'read-url'
+    strict = false
+    saxParser = sax.parser strict
+    saxParser.onerror = (err) ->
+        reportParser.emit 'error', err
+    saxParser.onend = ->
+        reportParser.emit 'end', reportsSoFar
+    saxParser.onopentag = ({name}) ->
+        if mode is 'searching-for-next-row' and name is 'TR'
+            mode = 'reading-filename'
+    saxParser.ontext = (text) ->
+        switch mode
+            when 'reading-filename'
+                currentIncompleteReport.filename = text
+                mode = 'reading-last-modified'
+            when 'reading-last-modified'
+                currentIncompleteReport.lastModified = text
+                mode = 'reading-md5'
+            when 'reading-md5'
+                currentIncompleteReport.md5 = text
+                mode = 'reading-size'
+            when 'reading-size'
+                currentIncompleteReport.size = text
+                mode = 'reading-url'
+    saxParser.onattribute = ({name, value}) =>
+        if mode is 'reading-url' and name is 'HREF'
+            currentIncompleteReport.url = value
+            reportsSoFar.push currentIncompleteReport
+            currentIncompleteReport = {}
+            mode = 'searching-for-next-row'
+    saxParser.onclosetag = (name) ->
+        # the first closing TR is the end of the table head
+        if mode is 'searching-for-end-of-table-head' and name is 'TR'
+            mode = 'searching-for-next-row'
 
-        @parser.onattribute = ({name, value}) =>
-            if @mode is 'read-url' and name is 'HREF'
-                @report.url = value
-                @reports.push @report
-                @report = {}
-                @mode = 'next-row'
+    reportParser.write = (data) ->
+        saxParser.write data
+    reportParser.close = ->
+        saxParser.close()
 
-        @parser.onclosetag = (name) =>
-            @mode = 'next-row' if @mode is 'search-table-head-end' and name is 'TR'
-
-    write: (data) -> @parser.write data
-    close: -> @parser.close()
+    return reportParser
