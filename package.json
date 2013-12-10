@@ -25,13 +25,13 @@
         "node": ">=0.8.5"
     },
     "dependencies": {
-        "underscore": "1.5.1",
-        "moment": "2.1.0",
-        "sax": "0.5.5"
+        "moment": "2.4.0",
+        "underscore": "1.5.2",
+        "sax": "0.5.8"
     },
     "devDependencies": {
         "coffee-script": "1.6.3",
-        "nodeunit": "0.8"
+        "nodeunit": "0.8.2"
     },
     "main": "src/amazon",
     "scripts": {
