@@ -22,37 +22,36 @@ module.exports = ->
         currentRequestNumber = requestNumber++
 
         debug = (args...) ->
-            console.error 'REQUEST', requestNumber, args... if options.debug?
+            console.error "##{requestNumber}", args... if options.debug?
 
-        debug 'options', options
+        debug 'REQUEST digests[options.host] =', digests[options.host]
 
-        currentDigest = digests[options.host]
-
-        debug 'currentDigest', currentDigest
-
-        if currentDigest?
+        if digests[options.host]?
             options.headers ?= {}
-            options.headers.Authorization = currentDigest
+            options.headers.Authorization = digests[options.host]
+
+        debug 'REQUEST options =', options
 
         httpOrHttps = if options.https then https else http
 
-        req = httpOrHttps.request options, (res) =>
-            debug 'response status code', res.statusCode
-            debug 'response headers', res.headers
+        onResponse = (res) =>
+            debug 'RESPONSE res.statusCode =', res.statusCode
+            debug 'RESPONSE res.headers =', res.headers
 
             res.on 'close', (err) ->
-                debug 'response error', err
+                debug 'RESPONSE err =', err
 
             handlers = {}
 
             handlers[200] = =>
-                return cb null, newUnzippingResponseDecorator res if options.unzip
+                if options.unzip
+                    return cb null, newUnzippingResponseDecorator res
                 res.setEncoding 'utf-8'
                 cb null, res
 
             handlers[301] = handlers[302] = =>
                 location = res.headers.location
-                debug 'moved to', location
+                debug 'RESPONSE moved to', location
 
                 parsedUrl = url.parse location
 
@@ -63,29 +62,33 @@ module.exports = ->
                 }), cb
 
             handlers[401] = =>
-                msg1 = 'wrong credentials'
-                return cb new Error msg1 if currentDigest?
-                msg2 = 'authentication required, but `digest` option is not set'
+                # we have a digest cached for this host, but it
+                if digests[options.host]?
+                    return cb new Error 'wrong credentials'
                 credentials = options?.credentials?[options.host]
-                return cb new Error msg2 if not credentials?
-                debug 'not authorized: authorizing...'
+                unless credentials?
+                    cb new Error "authentication required but no credentials provided for host #{options.host}"
+
+                debug 'AUTH not authorized'
 
                 challenge = digest.parseChallenge res.headers['www-authenticate']
-                debug 'challenge:', challenge
+
+                debug 'AUTH challenge =', challenge
                 d = digest.renderDigest challenge,
                     credentials.username
                     credentials.password
                     options.path
                 digests[options.host] = d
-                debug 'new digest:', d
+                debug 'AUTH digest =', d
                 # retry with the digest
                 httpRequest options, cb
 
             handler = handlers[res.statusCode]
-            msg = "failed to get #{options.path}. server status #{res.statusCode}"
-            return cb new Error msg if not handler?
+            unless handler?
+                return cb new Error "failed to get #{options.path}. server status #{res.statusCode}"
             handler()
 
+        req = httpOrHttps.request options, onResponse
         req.end()
 
     return httpRequest

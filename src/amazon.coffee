@@ -26,7 +26,6 @@ module.exports = (options) ->
         credentials: {}
 
     sharedOptions.credentials[options.host] =
-        type: 'digest'
         username: options.username
         password: options.password
 
