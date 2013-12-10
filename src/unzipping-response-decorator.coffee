@@ -3,7 +3,7 @@ zlib = require 'zlib'
 
 # decorate/wrap a response to unzip data on the fly
 
-module.exports = (response) ->
+module.exports = (res) ->
 
     decorator = new events.EventEmitter
 
