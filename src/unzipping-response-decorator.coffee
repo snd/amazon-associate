@@ -1,28 +1,41 @@
-{EventEmitter} = require 'events'
+events = require 'events'
 zlib = require 'zlib'
 
-# decorate a response to unzip data on the fly
+# decorate/wrap a response to unzip data on the fly
 
-module.exports = class extends EventEmitter
+module.exports = (response) ->
 
-    constructor: (res) ->
-        @statusCode = res.statusCode
-        @httpVersion = res.httpVersion
-        @headers = res.headers
-        @trailers = res.trailers
+    decorator = new events.EventEmitter
 
-        gunzip = zlib.createUnzip()
+    gunzip = zlib.createUnzip()
 
-        res.on 'data', (data) -> gunzip.write data
-        res.on 'end', -> gunzip.end()
-        res.on 'close', (err) => @emit 'close', err
+    # res -> gunzip
 
-        gunzip.on 'data', (data) => @emit 'data', data.toString()
-        gunzip.on 'error', (err) => @emit 'close', err
-        gunzip.on 'end', => @emit 'end'
+    res.on 'data', (data) ->
+        gunzip.write data
+    res.on 'end', ->
+        gunzip.end()
+    res.on 'close', (err) ->
+        decorator.emit 'close', err
 
-        @res = res
+    # gunzip -> decorator
 
-    setEncoding: (encoding) -> @res.setEncoding encoding
-    pause: -> @res.pause()
-    resume: -> @res.resume()
+    gunzip.on 'data', (data) ->
+        decorator.emit 'data', data.toString()
+    gunzip.on 'error', (err) ->
+        decorator.emit 'close', err
+    gunzip.on 'end', ->
+        decorator.emit 'end'
+
+    decorator.statusCode = res.statusCode
+    decorator.httpVersion = res.httpVersion
+    decorator.headers = res.headers
+    decorator.trailers = res.trailers
+    decorator.setEncoding = (encoding) ->
+        res.setEncoding encoding
+    decorator.pause = ->
+        res.pause()
+    decorator.resume = ->
+        res.resume()
+
+    return decorator
