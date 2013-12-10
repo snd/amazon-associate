@@ -26,15 +26,17 @@ module.exports = ->
 
         debug 'REQUEST digests[options.host] =', digests[options.host]
 
+        optionsCopy = _.extend {}, options
+
         if digests[options.host]?
-            options.headers ?= {}
-            options.headers.Authorization = digests[options.host]
+            optionsCopy.headers ?= {}
+            optionsCopy.headers.Authorization = digests[options.host]
 
         debug 'REQUEST options =', options
 
         httpOrHttps = if options.https then https else http
 
-        onResponse = (res) =>
+        onResponse = (res) ->
             debug 'RESPONSE res.statusCode =', res.statusCode
             debug 'RESPONSE res.headers =', res.headers
 
@@ -88,7 +90,9 @@ module.exports = ->
                 return cb new Error "failed to get #{options.path}. server status #{res.statusCode}"
             handler()
 
-        req = httpOrHttps.request options, onResponse
+        req = httpOrHttps.request optionsCopy, onResponse
+        req.on 'error', (err) ->
+            return cb err
         req.end()
 
     return httpRequest
