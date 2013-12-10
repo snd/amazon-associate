@@ -10,16 +10,36 @@ amazon-associate is a simple interface to amazon associate reports for nodejs
 npm install amazon-associate
 ```
 
+**or**
+
+put this line in the dependencies section of your `package.json`:
+
+```
+"amazon-associate": "0.4.0"
+```
+
+then run:
+
+```
+npm install
+```
+
 ### use
 
 ```javascript
-var Amazon = require('amazon-associate');
+var newAmazon = require('amazon-associate');
 
-var amazon = new Amazon({
-    associateId: 'your amazon associate id',
-    password: 'your password',
+var amazon = newAmazon({
+    associateId: 'your amazon associate id', // mandatory
+    username: 'your amazon username', // (default: the same as the associateId option)
+    password: 'your password', // mandatory
     host: 'assoc-datafeeds-na.amazon.com', // (default 'assoc-datafeeds-eu.amazon.com')
-    debug: true // print debug output to the console (optional)
+    debug:
+        // a function that will be called by amazon associate with debug information (optional)
+        function () {
+            args = ['AMAZON ASSOCIATE DEBUG'].concat(arguments);
+            console.log.apply(null, args);
+        }
 })
 
 amazon.getEarnings(new Date(2012, 5, 22), function(err, earnings) {
@@ -27,6 +47,13 @@ amazon.getEarnings(new Date(2012, 5, 22), function(err, earnings) {
         throw err;
     }
     console.log(earnings);
+});
+
+amazon.getOrders(new Date(2012, 5, 22), function(err, orders) {
+    if (err) {
+        throw err;
+    }
+    console.log(orders);
 });
 ```
 
