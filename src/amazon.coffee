@@ -1,69 +1,73 @@
 _ = require 'underscore'
 moment = require 'moment'
 
-Client = require './client'
-ItemParser = require './item-parser'
-ReportParser = require './report-parser'
+newClient = require './client'
+newItemParser = require './item-parser'
+newReportParser = require './report-parser'
+util = require './util'
 
-parseResponse = (res, parser, cb) ->
-    parser.on 'error', (err) -> cb err
-    parser.on 'end', (result) -> cb null, result
+module.exports = (options) ->
+    # defensive cloning
+    options = _.extend {}, options
 
-    res.on 'error', (err) -> cb err
-    res.on 'data', (data) -> parser.write data
+    throw new Error 'missing option: "associateId"' if not options.associateId?
+    throw new Error 'missing option: "password"' if not options.password?
 
-    res.on 'end', -> parser.close()
+    debug = (args...) ->
+        options.debug args... if options.debug
 
-module.exports = class
+    _.defaults options,
+        host: 'assoc-datafeeds-eu.amazon.com'
+        reportPath: '/datafeed/listReports'
+        username: options.associateId
 
-    debug: (args...) -> console.error 'amazon-associate:', args... if @options.debug
+    sharedOptions =
+        debug: options.debug
+        credentials: {}
 
-    constructor: (@options) ->
-        throw new Error 'missing associateId option' if not @options.associateId?
-        throw new Error 'missing password option' if not @options.password?
-        _.defaults @options,
-            host: 'assoc-datafeeds-eu.amazon.com'
-            reportPath: '/datafeed/listReports'
-            username: @options.associateId
-            debug: false
-        clientOptions =
-            debug: @options.debug
-            credentials: {}
-        clientOptions.credentials[@options.host] =
-            type: 'digest'
-            username: @options.username
-            password: @options.password
-        @client = new Client clientOptions
+    sharedOptions.credentials[options.host] =
+        type: 'digest'
+        username: options.username
+        password: options.password
 
-    getReportUrl: (date, type) ->
+    httpRequest = newClient()
+
+    amazon = {}
+
+    amazon.getReportUrl = (date, type) ->
         datestring = moment(date).format 'YYYYMMDD'
-        filename = "#{@options.associateId}-#{type}-report-#{datestring}.xml.gz"
+        filename = "#{options.associateId}-#{type}-report-#{datestring}.xml.gz"
         "/datafeed/getReport?filename=#{filename}"
 
-    _getItems: (date, type, cb) ->
-        @client.request {
+    amazon.getItems = (date, type, cb) ->
+        httpRequest _.extend({}, sharedOptions, {
             https: true
-            host: @options.host
-            path: @getReportUrl date, type
+            host: options.host
+            path: amazon.getReportUrl date, type
             unzip: true
-        }, (err, res) ->
+        }), (err, res) ->
             return cb err if err?
             datestring = moment(date).format 'YYYY-MM-DD'
             if res.headers['content-length'] is '0'
                 return cb new Error "no #{type} for date #{datestring}"
-            parser = new ItemParser
-            parseResponse res, parser, cb
+            parser = newItemParser()
+            util.parseResponse res, parser, cb
 
-    getOrders: (date, cb) -> @_getItems date, 'orders', cb
-    getEarnings: (date, cb) -> @_getItems date, 'earnings', cb
+    amazon.getOrders = (date, cb) ->
+        amazon.getItems date, 'orders', cb
 
-    getReports: (cb) ->
-        @client.request {
+    amazon.getEarnings = (date, cb) ->
+        amazon.getItems date, 'earnings', cb
+
+    amazon.getReports = (cb) ->
+        httpRequest _.extend({}, sharedOptions, {
             https: true
-            host: @options.host
-            path: @options.reportPath
+            host: options.host
+            path: options.reportPath
             unzip: false
-        }, (err, res) ->
+        }), (err, res) ->
             return cb err if err?
-            parser = new ReportParser
-            parseResponse res, parser, cb
+            parser = newReportParser()
+            util.parseResponse res, parser, cb
+
+    return amazon
