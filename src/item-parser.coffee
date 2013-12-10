@@ -1,25 +1,32 @@
-{EventEmitter} = require 'events'
+events = require 'events'
 
-_ = require 'underscore'
 sax = require 'sax'
 
-module.exports = class extends EventEmitter
-    constructor: ->
-        @items = []
-        @mode = 'search-item-list'
+module.exports = ->
+    itemsSoFar = []
+    mode = 'searching-for-item-list'
 
-        @parser = sax.parser false
-        @parser.onerror = (err) => @emit 'error', err
-        @parser.onend = => @emit 'end', @items
+    itemParser = new events.EventEmitter
 
-        @parser.onopentag = ({name, attributes}) =>
-            @mode = 'next-item' if @mode is 'search-item-list' and name is 'ITEMS'
+    strict = false
+    saxParser = sax.parser strict
+    saxParser.onerror = (err) ->
+        itemParser.emit 'error', err
+    saxParser.onend = ->
+        itemParser.emit 'end', itemsSoFar
+    saxParser.onopentag = ({name, attributes}) ->
+        if mode is 'searching-for-item-list' and name is 'ITEMS'
+            mode = 'searching-for-next-item'
 
-            if @mode is 'next-item' and name is 'ITEM'
-                item = {}
-                _.each _.keys(attributes), (key) ->
-                    item[key.toLowerCase()] = attributes[key]
-                @items.push item
+        if mode is 'searching-for-next-item' and name is 'ITEM'
+            item = {}
+            Object.keys(attributes).forEach (key) ->
+                item[key.toLowerCase()] = attributes[key]
+            itemsSoFar.push item
 
-    write: (data) -> @parser.write data
-    close: -> @parser.close()
+    itemParser.write = (data) ->
+        saxParser.write data
+    itemParser.close = ->
+        saxParser.close()
+
+    return itemParser
