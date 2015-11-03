@@ -1,6 +1,6 @@
 {EventEmitter} = require 'events'
 
-_ = require 'underscore'
+_ = require 'lodash'
 sax = require 'sax'
 
 module.exports = class extends EventEmitter

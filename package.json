@@ -1,44 +1,51 @@
 {
-    "name": "amazon-associate",
-    "description": "amazon-associate is a simple interface to amazon associate reports for nodejs",
-    "version": "0.3.1",
-    "keywords": ["amazon", "associate", "report"],
-    "homepage": "http://github.com/snd/amazon-associate",
-    "author": {
-        "name": "Maximilian Krüger",
-        "email": "kruemaxi@gmail.com",
-        "url": "http://github.com/snd"
-    },
-    "bugs": {
-        "url": "http://github.com/snd/amazon-associate/issues",
-        "email": "kruemaxi@gmail.com"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/snd/amazon-associate.git"
-    },
-    "licenses": {
-        "type": "MIT",
-        "url": "git://github.com/snd/amazon-associate/LICENSE"
-    },
-    "engines": {
-        "node": ">=0.8.5"
-    },
-    "dependencies": {
-        "underscore": "1.5.1",
-        "moment": "2.1.0",
-        "sax": "0.5.5"
-    },
-    "devDependencies": {
-        "coffee-script": "1.6.3",
-        "nodeunit": "0.8"
-    },
-    "main": "src/amazon",
-    "scripts": {
-        "prepublish": "coffee --bare --compile --output src src/*.coffee",
-        "postpublish": "rm src/*.js",
-        "pretest": "coffee --bare --compile --output src src/*.coffee && coffee --bare --compile --output test test/*.coffee",
-        "posttest": "rm src/*.js && rm test/*.js",
-        "test": "nodeunit test/*.js"
-    }
+  "name": "amazon-associate",
+  "description": "simple interface to amazon associate reports for nodejs",
+  "version": "0.3.1",
+  "keywords": [
+    "amazon",
+    "associate",
+    "report"
+  ],
+  "homepage": "http://github.com/snd/amazon-associate",
+  "author": {
+    "name": "Maximilian Krüger",
+    "email": "kruemaxi@gmail.com",
+    "url": "http://github.com/snd"
+  },
+  "bugs": {
+    "url": "http://github.com/snd/amazon-associate/issues",
+    "email": "kruemaxi@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/snd/amazon-associate.git"
+  },
+  "licenses": {
+    "type": "MIT",
+    "url": "git://github.com/snd/amazon-associate/LICENSE"
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "dependencies": {
+    "lodash": "3.10.1",
+    "moment": "2.10.6",
+    "sax": "1.1.4"
+  },
+  "devDependencies": {
+    "coffee-script": "1.10.0",
+    "istanbul": "0.4.0",
+    "tape": "4.2.2",
+    "coffeetape": "1.0.1",
+    "codecov.io": "0.1.6"
+  },
+  "main": "lib/amazon",
+  "scripts": {
+    "compile": "coffee --bare --compile --output lib src",
+    "prepublish": "npm run compile",
+    "pretest": "npm run compile",
+    "test": "coffeetape test/*",
+    "test-with-coverage": "istanbul cover coffeetape test/* && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js"
+  }
 }
