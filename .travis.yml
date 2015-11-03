@@ -1,5 +1,15 @@
 language: node_js
 node_js:
-    - "0.8"
-    - "0.10"
-script: nodeunit test
+  - "0.12"
+  - "4.0"
+script: npm run $NPM_COMMAND
+sudo: false
+env:
+  matrix:
+    - NPM_COMMAND=test
+    - NPM_COMMAND=test-with-coverage
+matrix:
+  exclude:
+    # don't collect code coverage more than once
+    - node_js: "0.12"
+      env: NPM_COMMAND=test-with-coverage
