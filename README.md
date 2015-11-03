@@ -1,8 +1,10 @@
 # amazon-associate
 
-[![Build Status](https://travis-ci.org/snd/amazon-associate.png)](https://travis-ci.org/snd/amazon-associate)
+[![NPM Package](https://img.shields.io/npm/v/amazon-associate.svg?style=flat)](https://www.npmjs.org/package/amazon-associate)
+[![Build Status](https://travis-ci.org/snd/amazon-associate.svg?branch=master)](https://travis-ci.org/snd/amazon-associate/branches)
+[![codecov.io](http://codecov.io/github/snd/amazon-associate/coverage.svg?branch=master)](http://codecov.io/github/snd/amazon-associate?branch=master)
 
-amazon-associate is a simple interface to amazon associate reports for nodejs
+**simple interface to amazon associate reports for nodejs**
 
 ### install
 
@@ -16,17 +18,17 @@ npm install amazon-associate
 var Amazon = require('amazon-associate');
 
 var amazon = new Amazon({
-    associateId: 'your amazon associate id',
-    password: 'your password',
-    host: 'assoc-datafeeds-na.amazon.com', // (default 'assoc-datafeeds-eu.amazon.com')
-    debug: true // print debug output to the console (optional)
+  associateId: 'your amazon associate id',
+  password: 'your password',
+  host: 'assoc-datafeeds-na.amazon.com', // (default 'assoc-datafeeds-eu.amazon.com')
+  debug: true // print debug output to the console (optional)
 })
 
 amazon.getEarnings(new Date(2012, 5, 22), function(err, earnings) {
-    if (err) {
-        throw err;
-    }
-    console.log(earnings);
+  if (err) {
+    throw err;
+  }
+  console.log(earnings);
 });
 ```
 
@@ -64,4 +66,4 @@ amazon.getEarnings(new Date(2012, 5, 22), function(err, earnings) {
     - `tag` associate id
     - `title` title of the product
 
-### license: MIT
+## [license: MIT](LICENSE)
