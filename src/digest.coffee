@@ -1,6 +1,6 @@
 crypto = require 'crypto'
 
-_ = require 'underscore'
+_ = require 'lodash'
 
 md5 = (string) ->
     hash = crypto.createHash 'md5'

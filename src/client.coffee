@@ -2,7 +2,7 @@ https = require 'https'
 http = require 'http'
 url = require 'url'
 
-_ = require 'underscore'
+_ = require 'lodash'
 
 Digest = require './digest'
 
